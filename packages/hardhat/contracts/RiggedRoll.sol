@@ -35,7 +35,7 @@ contract RiggedRoll is Ownable {
             return;
         }
 
-        diceGame.rollTheDice{value: minValue, gas: 500000}();
+        diceGame.rollTheDice{value: 0.002 ether}();
     }
 
 
